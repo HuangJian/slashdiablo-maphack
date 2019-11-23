@@ -28,7 +28,6 @@
 *.suo
 *.sdf
 *.opensdf
-*.filters
 *.opendb
 
 *~
