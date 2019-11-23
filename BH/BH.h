@@ -39,4 +39,6 @@ namespace BH {
 	extern "C" __declspec(dllexport) void Initialize();
 	extern bool Shutdown();
 	extern bool ReloadConfig();
+
+    extern ofstream logger;
 };

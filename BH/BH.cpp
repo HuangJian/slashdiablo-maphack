@@ -24,6 +24,8 @@ map<string, Toggle>* BH::MiscToggles;
 map<string, Toggle>* BH::MiscToggles2;
 map<string, bool>* BH::BnetBools;
 
+ofstream BH::logger;
+
 Patch* patches[] = {
 	new Patch(Call, D2CLIENT, { 0x44230, 0x45280 }, (int)GameLoop_Interception, 7),
 
@@ -65,6 +67,17 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 
 	initialized = false;
 	Initialize();
+
+    string debugLogFileName;
+    BH::config->ReadString("Debug Log File", debugLogFileName);
+    if (!debugLogFileName.empty()) {
+        logger = ofstream(path + debugLogFileName, ios_base::app);
+    }
+    else {
+        logger.setstate(ios_base::badbit);
+    }
+    logger << "---------------- BH initialized ----------------" << endl;
+
 	return true;
 }
 
@@ -81,6 +94,7 @@ DWORD WINAPI LoadMPQData(VOID* lpvoid){
 		}
 	}
 
+    BH::logger << "patch path = " << patchPath << endl;
 	ReadMPQFiles(patchPath);
 	InitializeMPQData();
 	Tables::initTables();
@@ -181,6 +195,11 @@ bool BH::Shutdown() {
 		oogDraw->Remove();
 		delete config;
 	}
+
+    if (logger.is_open()) {
+        logger << "---------------- BH unloaded ----------------" << endl;
+        logger.close();
+    }
 	
 	return true;
 }
