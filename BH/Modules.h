@@ -13,3 +13,5 @@
 #include "Modules\Party\Party.h"
 #include "Modules\StashExport\StashExport.h"
 #include "Modules\ChatColor\ChatColor.h"
+
+#include "Modules\RoomInfo\RoomInfo.h"

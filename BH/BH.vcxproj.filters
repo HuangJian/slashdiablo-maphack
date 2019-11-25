@@ -13,8 +13,6 @@
     <ClCompile Include="D2Version.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="JSONObject.cpp" />
-    <ClCompile Include="Modules\Module.cpp" />
-    <ClCompile Include="Modules\ModuleManager.cpp" />
     <ClCompile Include="MPQInit.cpp" />
     <ClCompile Include="MPQReader.cpp" />
     <ClCompile Include="Mustache.cpp" />
@@ -96,6 +94,15 @@
     <ClCompile Include="Modules\StashExport\StashExport.cpp">
       <Filter>Modules\StashExport</Filter>
     </ClCompile>
+    <ClCompile Include="Modules\Module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\ModuleManager.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\RoomInfo\RoomInfo.cpp">
+      <Filter>Modules\RoomInfo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsyncDrawBuffer.h" />
@@ -117,8 +124,6 @@
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="JSONObject.h" />
     <ClInclude Include="Modules.h" />
-    <ClInclude Include="Modules\Module.h" />
-    <ClInclude Include="Modules\ModuleManager.h" />
     <ClInclude Include="MPQInit.h" />
     <ClInclude Include="MPQReader.h" />
     <ClInclude Include="Mustache.h" />
@@ -221,6 +226,15 @@
     <ClInclude Include="Modules\StashExport\StashExport.h">
       <Filter>Modules\StashExport</Filter>
     </ClInclude>
+    <ClInclude Include="Modules\Module.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ModuleManager.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\RoomInfo\RoomInfo.h">
+      <Filter>Modules\RoomInfo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Drawing">
@@ -303,6 +317,9 @@
     </Filter>
     <Filter Include="Modules\StashExport">
       <UniqueIdentifier>{2c78bc4d-53ab-462e-a48b-abd1f47e9ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\RoomInfo">
+      <UniqueIdentifier>{fce9071c-978b-4527-8b33-43908673c610}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

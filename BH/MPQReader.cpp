@@ -120,8 +120,7 @@ bool ReadMPQFiles(std::string fileName) {
 
 			MPQArchive archive(copyFileName.c_str());
 
-			const int NUM_MPQS = 16;
-			std::string mpqFiles[NUM_MPQS] = {
+			vector<std::string> mpqFiles = {
 				"UniqueItems",
 				"Armor",
 				"Weapons",
@@ -137,15 +136,16 @@ bool ReadMPQFiles(std::string fileName) {
 				"MagicSuffix",
 				"RarePrefix",
 				"RareSuffix",
-				"CharStats"
+				"CharStats",
+                "Levels"
 			};
 			if (archive.error == ERROR_SUCCESS) {
-				for (int i = 0; i < NUM_MPQS; i++){
-					std::string path = "data\\global\\excel\\" + mpqFiles[i] + ".txt";
+                for (auto const& fileName : mpqFiles) {
+					std::string path = "data\\global\\excel\\" + fileName + ".txt";
 					MPQFile mpqFile(&archive, path.c_str()); desiredFileCount++;
 					if (mpqFile.error == ERROR_SUCCESS) {
 						successfulFileCount++;
-						std::string key = mpqFiles[i];
+						std::string key = fileName;
 						std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 						MpqDataMap[key] = new MPQData(&mpqFile);
 					}
