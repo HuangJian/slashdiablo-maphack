@@ -40,5 +40,6 @@ namespace BH {
 	extern bool Shutdown();
 	extern bool ReloadConfig();
 
+    extern string debugLogFileName;
     extern ofstream logger;
 };

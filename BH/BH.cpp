@@ -24,6 +24,7 @@ map<string, Toggle>* BH::MiscToggles;
 map<string, Toggle>* BH::MiscToggles2;
 map<string, bool>* BH::BnetBools;
 
+string BH::debugLogFileName;
 ofstream BH::logger;
 
 Patch* patches[] = {
@@ -68,7 +69,6 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 	initialized = false;
 	Initialize();
 
-    string debugLogFileName;
     BH::config->ReadString("Debug Log File", debugLogFileName);
     if (!debugLogFileName.empty()) {
         logger = ofstream(path + debugLogFileName, ios_base::app);
@@ -94,7 +94,6 @@ DWORD WINAPI LoadMPQData(VOID* lpvoid){
 		}
 	}
 
-    BH::logger << "patch path = " << patchPath << endl;
 	ReadMPQFiles(patchPath);
 	InitializeMPQData();
 	Tables::initTables();
@@ -139,16 +138,18 @@ void BH::Initialize()
 	});
 
 	
-	new ScreenInfo();
-	new Gamefilter();
-	new Bnet();
-	new Item();
-	new AutoTele();
-	new Party();
-	new ItemMover();
-	new StashExport();
-	new Maphack();
-	new ChatColor();
+	//new ScreenInfo();
+	//new Gamefilter();
+	//new Bnet();
+	//new Item();
+	//new AutoTele();
+	//new Party();
+	//new ItemMover();
+	//new StashExport();
+	//new Maphack();
+	//new ChatColor();
+
+    new RoomInfo();
 
 	BnetBools = ((Bnet*)moduleManager->Get("bnet"))->GetBools();
 
