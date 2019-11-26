@@ -31,7 +31,9 @@ set(MODULE_SOURCES "Modules/Module.cpp"
                    "Modules/Maphack/Maphack.cpp"
                    "Modules/Party/Party.cpp"
                    "Modules/ScreenInfo/ScreenInfo.cpp"
-                   "Modules/StashExport/StashExport.cpp")
+                   "Modules/StashExport/StashExport.cpp"
+                   "Modules/RoomInfo/RoomInfo.cpp"
+        )
 
 set(DRAWING_SOURCES "Drawing/Hook.cpp"
                     "Drawing/Advanced/Checkhook/Checkhook.cpp"
@@ -49,5 +51,9 @@ set(DRAWING_SOURCES "Drawing/Hook.cpp"
                     "Drawing/UI/UITab.cpp")
 
 set(SOURCE_FILES ${SOURCE_FILES} ${MODULE_SOURCES} ${DRAWING_SOURCES})
-add_library(BH ${SOURCE_FILES})
+add_library(BH SHARED ${SOURCE_FILES})
+
+include(GenerateExportHeader)
+generate_export_header(BH)
+
 target_link_libraries(BH ${STORM_LIBRARY} Shlwapi)

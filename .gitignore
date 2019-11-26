@@ -38,3 +38,10 @@ BH/Release/*
 Release/*
 /.vs/BH/v15
 /BH.VC.db
+
+# CMake
+cmake-build-debug/*
+cmake-build-release/*
+
+# CLion
+.idea/*
