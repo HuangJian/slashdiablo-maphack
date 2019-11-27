@@ -21,7 +21,8 @@ void RoomInfo::OnLoad() {
         make_tuple("Layer Level No Toggle", true, []() {
             UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
             auto levelNo = pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
-            return wstring_to_string(D2CLIENT_GetLevelName(levelNo));
+//            return wstring_to_string(D2CLIENT_GetLevelName(levelNo));
+            return "";
         }),
         make_tuple("Layer Level No Toggle", true, []() {
             return RoomInfo::txtDifficulty;
