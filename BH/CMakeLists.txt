@@ -53,7 +53,7 @@ set(DRAWING_SOURCES "Drawing/Hook.cpp"
 set(SOURCE_FILES ${SOURCE_FILES} ${MODULE_SOURCES} ${DRAWING_SOURCES})
 add_library(BH SHARED ${SOURCE_FILES})
 
-include(GenerateExportHeader)
-generate_export_header(BH)
+# use "/MT" to enable loading from PlugY
+set(CMAKE_CXX_FLAGS_RELEASE "/MT /O2 /Ob2 /DNDEBUG")
 
-target_link_libraries(BH ${STORM_LIBRARY} Shlwapi)
+target_link_libraries(BH Shlwapi ${STORM_LIBRARY})
