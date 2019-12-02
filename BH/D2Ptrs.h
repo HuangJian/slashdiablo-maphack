@@ -53,44 +53,44 @@
 
 #ifdef _DEFINE_PTRS
 #define FUNCPTR(dll, name, callingret, args, ...) \
-	static Offsets f##dll##_##name##_offsets = { __VA_ARGS__ }; \
-	__declspec(naked) callingret dll##_##name##args \
-	{ \
-		static DWORD f##dll##_##name = NULL; \
-		if(f##dll##_##name == NULL) \
-		{ \
-		__asm { pushad } \
-		f##dll##_##name = Patch::GetDllOffset(dll, *(&f##dll##_##name##_offsets._113c + D2Version::GetGameVersionID())); \
-		__asm { popad } \
-		} \
-		__asm jmp [f##dll##_##name] \
-	}
+    static Offsets f##dll##_##name##_offsets = { __VA_ARGS__ }; \
+    __declspec(naked) callingret dll##_##name##args \
+    { \
+        static DWORD f##dll##_##name = NULL; \
+        if(f##dll##_##name == NULL) \
+        { \
+        __asm { pushad } \
+        f##dll##_##name = Patch::GetDllOffset(dll, *(&f##dll##_##name##_offsets._113c + D2Version::GetGameVersionID())); \
+        __asm { popad } \
+        } \
+        __asm jmp [f##dll##_##name] \
+    }
 
 #define ASMPTR(dll, name, ...) \
-	DWORD* Asm_##dll##_##name##(VOID) \
-	{ \
-		static DWORD f##Asm_##dll##_##name = NULL; \
-		if(f##Asm_##dll##_##name## == NULL) \
-		{ \
-		static Offsets f##Asm_##_##name##_offsets = { __VA_ARGS__ }; \
-		static int address = *(&f##Asm_##_##name##_offsets._113c + D2Version::GetGameVersionID()); \
-		f##Asm_##dll##_##name## = Patch::GetDllOffset(dll, address); \
-		} \
-		return &##f##Asm_##dll##_##name; \
-	} 
+    DWORD* Asm_##dll##_##name##(VOID) \
+    { \
+        static DWORD f##Asm_##dll##_##name = NULL; \
+        if(f##Asm_##dll##_##name## == NULL) \
+        { \
+        static Offsets f##Asm_##_##name##_offsets = { __VA_ARGS__ }; \
+        static int address = *(&f##Asm_##_##name##_offsets._113c + D2Version::GetGameVersionID()); \
+        f##Asm_##dll##_##name## = Patch::GetDllOffset(dll, address); \
+        } \
+        return &##f##Asm_##dll##_##name; \
+    }
 
 #define VARPTR(dll, name, type, ...) \
-	type** Var_##dll##_##name##(VOID) \
-	{ \
-		static DWORD f##Var_##dll##_##name = NULL; \
-		if(f##Var_##dll##_##name## == NULL) \
-		{ \
-		static Offsets f##Var_##_##name##_offsets = { __VA_ARGS__ }; \
-		static int address = *(&f##Var_##_##name##_offsets._113c + D2Version::GetGameVersionID()); \
-		f##Var_##dll##_##name## = Patch::GetDllOffset(dll, address); \
-		} \
-		return (type**)&##f##Var_##dll##_##name; \
-	} 
+    type** Var_##dll##_##name##(VOID) \
+    { \
+        static DWORD f##Var_##dll##_##name = NULL; \
+        if(f##Var_##dll##_##name## == NULL) \
+        { \
+        static Offsets f##Var_##_##name##_offsets = { __VA_ARGS__ }; \
+        static int address = *(&f##Var_##_##name##_offsets._113c + D2Version::GetGameVersionID()); \
+        f##Var_##dll##_##name## = Patch::GetDllOffset(dll, address); \
+        } \
+        return (type**)&##f##Var_##dll##_##name; \
+    }
 
 #else
 #define FUNCPTR(dll, name, callingret, args, ...) extern callingret dll##_##name##args;
@@ -185,7 +185,7 @@ VARPTR(D2CLIENT, MouseOffsetX, int, 0x119960, 0x106844)
 VARPTR(D2CLIENT, AutomapOn, DWORD, 0xFADA8, 0x11C8B8)
 VARPTR(D2CLIENT, AutomapMode, int, 0xF16B0, 0xF34F8)
 VARPTR(D2CLIENT, Offset, POINT, 0x11C1F8, 0x11CF5C)
-VARPTR(D2CLIENT, xShake, int, 0x11BF00, 0x11CA6C) //ScreenShake	
+VARPTR(D2CLIENT, xShake, int, 0x11BF00, 0x11CA6C) //ScreenShake
 VARPTR(D2CLIENT, yShake, int, 0x10B9DC, 0xFC3DC) //ScreenShake
 VARPTR(D2CLIENT, AutomapLayer, AutomapLayer*, 0x11C1C4, 0x11CF28)
 
@@ -527,11 +527,11 @@ FUNCPTR(D2MCPCLIENT, ParseGameListPacket, VOID __fastcall, (BYTE* pPacket), 0x6E
 #undef ASMPTR
 #undef VARPTR
 
-#define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)	(TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
-#define D2CLIENT_GetUnitName(x)				(wchar_t*)D2CLIENT_GetUnitName_STUB((DWORD)x)
-#define GetUnitFromId(unitid, unittype)		((UnitAny *)D2CLIENT_GetUnitFromId_STUB(unitid, unittype))
+#define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)    (TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
+#define D2CLIENT_GetUnitName(x)                (wchar_t*)D2CLIENT_GetUnitName_STUB((DWORD)x)
+#define GetUnitFromId(unitid, unittype)        ((UnitAny *)D2CLIENT_GetUnitFromId_STUB(unitid, unittype))
 #define D2CLIENT_GetLevelName(LevelId) (wchar_t*)D2CLIENT_GetLevelName_STUB(LevelId)
-#define D2CLIENT_GetUIState(dwVarNo)					(D2CLIENT_GetUIVar_STUB(dwVarNo))
-#define D2CLIENT_ClickParty(RosterUnit, Mode)		(D2CLIENT_ClickParty_ASM(RosterUnit, Mode))
-#define D2CLIENT_xShake (*p_D2CLIENT_xShake)	//GameShake
-#define D2CLIENT_yShake (*p_D2CLIENT_yShake)	//GameShake
+#define D2CLIENT_GetUIState(dwVarNo)                    (D2CLIENT_GetUIVar_STUB(dwVarNo))
+#define D2CLIENT_ClickParty(RosterUnit, Mode)        (D2CLIENT_ClickParty_ASM(RosterUnit, Mode))
+#define D2CLIENT_xShake (*p_D2CLIENT_xShake)    //GameShake
+#define D2CLIENT_yShake (*p_D2CLIENT_yShake)    //GameShake

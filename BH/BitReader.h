@@ -9,13 +9,13 @@ typedef unsigned long ulong;
 
 class BitReader {
 public:
-	std::size_t offset;
-	const unsigned char *data;
+    std::size_t offset;
+    const unsigned char *data;
 
-	BitReader(const unsigned char *data) : data(data), offset(0) {};
+    BitReader(const unsigned char *data) : data(data), offset(0) {};
 
-	bool readBool();
-	unsigned long read(unsigned int numBits);
-	unsigned int getBit(unsigned int bitoffset);
-	unsigned long getBits(unsigned int numBits);
+    bool readBool();
+    unsigned long read(unsigned int numBits);
+    unsigned int getBit(unsigned int bitoffset);
+    unsigned long getBits(unsigned int numBits);
 };

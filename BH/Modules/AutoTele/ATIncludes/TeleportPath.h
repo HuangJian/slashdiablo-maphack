@@ -21,27 +21,27 @@
 
 class CTeleportPath  
 {
-public:	
-	
-	CTeleportPath(WORD** pCollisionMap, int cx, int cy);
-	virtual ~CTeleportPath();	
+public:
 
-	DWORD FindTeleportPath(POINT ptStart, POINT ptEnd, LPPOINT lpBuffer, DWORD dwMaxCount); // Calculate path
+    CTeleportPath(WORD** pCollisionMap, int cx, int cy);
+    virtual ~CTeleportPath();
+
+    DWORD FindTeleportPath(POINT ptStart, POINT ptEnd, LPPOINT lpBuffer, DWORD dwMaxCount); // Calculate path
 
 private:
 
-	//BOOL DumpDistanceTable(LPCSTR lpszFilePath) const;	
-	static int GetRedundancy(const LPPOINT lpPath, DWORD dwMaxCount, const POINT& pos);
-	void Block(POINT pos, int nRange);
-	BOOL GetBestMove(POINT& rResult, int nAdjust = 2);
-	BOOL MakeDistanceTable();
-	BOOL IsValidIndex(int x, int y) const;
+    //BOOL DumpDistanceTable(LPCSTR lpszFilePath) const;
+    static int GetRedundancy(const LPPOINT lpPath, DWORD dwMaxCount, const POINT& pos);
+    void Block(POINT pos, int nRange);
+    BOOL GetBestMove(POINT& rResult, int nAdjust = 2);
+    BOOL MakeDistanceTable();
+    BOOL IsValidIndex(int x, int y) const;
 
-	WORD** m_ppTable;	// Distance table
-	POINT m_ptStart;
-	POINT m_ptEnd;
-	int m_nCX;
-	int m_nCY;
+    WORD** m_ppTable;    // Distance table
+    POINT m_ptStart;
+    POINT m_ptEnd;
+    int m_nCX;
+    int m_nCY;
 };
 
 #endif // __TELEPORTPATH_H__
@@ -52,15 +52,15 @@ private:
 // Abin (abinn32@yahoo.com)
 ///////////////////////////////////////////////////////////
 
-#define TP_RANGE		35		// Maximum teleport range
-#define RANGE_INVALID	10000  // invalid range flag
+#define TP_RANGE        35        // Maximum teleport range
+#define RANGE_INVALID    10000  // invalid range flag
 
 /////////////////////////////////////////////////////////////////////
 // Path Finding Result
 /////////////////////////////////////////////////////////////////////
 enum {   PATH_FAIL = 0,     // Failed, error occurred or no available path
-		 PATH_CONTINUE,	    // Path OK, destination not reached yet
-		 PATH_REACHED };    // Path OK, destination reached(Path finding completed successfully)
+         PATH_CONTINUE,        // Path OK, destination not reached yet
+         PATH_REACHED };    // Path OK, destination reached(Path finding completed successfully)
 
 
 //////////////////////////////////////////////////////////////////////
@@ -69,11 +69,11 @@ enum {   PATH_FAIL = 0,     // Failed, error occurred or no available path
 
 CTeleportPath::CTeleportPath(WORD** pCollisionMap, int cx, int cy)
 {
-	m_ppTable = pCollisionMap;
-	m_nCX = cx;
-	m_nCY = cy;
-	::memset(&m_ptStart, 0, sizeof(POINT));
-	::memset(&m_ptEnd, 0, sizeof(POINT));
+    m_ppTable = pCollisionMap;
+    m_nCX = cx;
+    m_nCY = cy;
+    ::memset(&m_ptStart, 0, sizeof(POINT));
+    ::memset(&m_ptEnd, 0, sizeof(POINT));
 }
 
 CTeleportPath::~CTeleportPath()
@@ -81,24 +81,24 @@ CTeleportPath::~CTeleportPath()
 }
 
 BOOL CTeleportPath::MakeDistanceTable()
-{	
-	if (m_ppTable == NULL)
-		return FALSE;
+{
+    if (m_ppTable == NULL)
+        return FALSE;
 
-	// convert the graph into a distance table
-	for (int x = 0; x < m_nCX; x++)	
-	{
-		for (int y = 0; y < m_nCY; y++)
-		{
-			if ((m_ppTable[x][y] % 2) == 0)
-				m_ppTable[x][y] = (short)AutoTele::GetDistanceSquared(x, y, m_ptEnd.x, m_ptEnd.y);
-			else
-				m_ppTable[x][y] = RANGE_INVALID;
-		}
-	}
+    // convert the graph into a distance table
+    for (int x = 0; x < m_nCX; x++)
+    {
+        for (int y = 0; y < m_nCY; y++)
+        {
+            if ((m_ppTable[x][y] % 2) == 0)
+                m_ppTable[x][y] = (short)AutoTele::GetDistanceSquared(x, y, m_ptEnd.x, m_ptEnd.y);
+            else
+                m_ppTable[x][y] = RANGE_INVALID;
+        }
+    }
 
-	m_ppTable[m_ptEnd.x][m_ptEnd.y] = 1;	
-	return TRUE;
+    m_ppTable[m_ptEnd.x][m_ptEnd.y] = 1;
+    return TRUE;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -107,171 +107,171 @@ BOOL CTeleportPath::MakeDistanceTable()
 // Originally developed by Niren7, Modified by Abin
 /////////////////////////////////////////////////////////////////////
 BOOL CTeleportPath::GetBestMove(POINT& pos, int nAdjust)
-{	
-	if(AutoTele::GetDistanceSquared(m_ptEnd.x, m_ptEnd.y, pos.x, pos.y) <= TP_RANGE)
-	{
-		pos = m_ptEnd;
-		return PATH_REACHED; // we reached the destination
-	}
+{
+    if(AutoTele::GetDistanceSquared(m_ptEnd.x, m_ptEnd.y, pos.x, pos.y) <= TP_RANGE)
+    {
+        pos = m_ptEnd;
+        return PATH_REACHED; // we reached the destination
+    }
 
-	if (!IsValidIndex(pos.x, pos.y))
-		return PATH_FAIL; // fail
+    if (!IsValidIndex(pos.x, pos.y))
+        return PATH_FAIL; // fail
 
-	Block(pos, nAdjust);
+    Block(pos, nAdjust);
 
-	POINT p, best;
-	int value = RANGE_INVALID;
+    POINT p, best;
+    int value = RANGE_INVALID;
 
-	for (p.x = pos.x - TP_RANGE; p.x <= pos.x + TP_RANGE; p.x++)
-	{
-		for (p.y = pos.y - TP_RANGE; p.y <= pos.y + TP_RANGE; p.y++)
-		{			
-			if (!IsValidIndex(p.x, p.y))
-				continue;
-		
-			if (m_ppTable[p.x][p.y] < value && AutoTele::GetDistanceSquared(p.x, p.y, pos.x, pos.y) <= TP_RANGE)
-			{				
-				value = m_ppTable[p.x][p.y];
-				best = p;					
-			}			
-		}
-	}
+    for (p.x = pos.x - TP_RANGE; p.x <= pos.x + TP_RANGE; p.x++)
+    {
+        for (p.y = pos.y - TP_RANGE; p.y <= pos.y + TP_RANGE; p.y++)
+        {
+            if (!IsValidIndex(p.x, p.y))
+                continue;
 
-	if (value >= RANGE_INVALID)
-		return PATH_FAIL; // no path at all	
-	
-	pos = best;
-	Block(pos, nAdjust);	
-	return PATH_CONTINUE; // ok but not reached yet
+            if (m_ppTable[p.x][p.y] < value && AutoTele::GetDistanceSquared(p.x, p.y, pos.x, pos.y) <= TP_RANGE)
+            {
+                value = m_ppTable[p.x][p.y];
+                best = p;
+            }
+        }
+    }
+
+    if (value >= RANGE_INVALID)
+        return PATH_FAIL; // no path at all
+
+    pos = best;
+    Block(pos, nAdjust);
+    return PATH_CONTINUE; // ok but not reached yet
 }
 
 DWORD CTeleportPath::FindTeleportPath(POINT ptStart, POINT ptEnd, LPPOINT lpBuffer, DWORD dwMaxCount)
 {
-	if (lpBuffer == NULL || dwMaxCount == 0 || m_nCX <= 0 || m_nCY <= 0 || m_ppTable == NULL)
-		return 0;
-	
-	memset(lpBuffer, 0, sizeof(POINT) * dwMaxCount);
-	m_ptStart = ptStart;
-	m_ptEnd = ptEnd;
+    if (lpBuffer == NULL || dwMaxCount == 0 || m_nCX <= 0 || m_nCY <= 0 || m_ppTable == NULL)
+        return 0;
 
-	//GameInfof("start %d %d End %d %d", ptStart.x, ptStart.y, ptEnd.x, ptEnd.y);
+    memset(lpBuffer, 0, sizeof(POINT) * dwMaxCount);
+    m_ptStart = ptStart;
+    m_ptEnd = ptEnd;
 
-	MakeDistanceTable();
-	//DumpDistanceTable("c:\\map2.txt");
-	 
-	lpBuffer[0] = ptStart; // start point
-	DWORD dwFound = 1;
+    //GameInfof("start %d %d End %d %d", ptStart.x, ptStart.y, ptEnd.x, ptEnd.y);
 
-	POINT pos = ptStart;
+    MakeDistanceTable();
+    //DumpDistanceTable("c:\\map2.txt");
 
-	BOOL bOK = FALSE;
-	int nRes = GetBestMove(pos);
-	while (nRes != PATH_FAIL && dwFound < dwMaxCount)
-	{
-		// Reached?
-		if (nRes == PATH_REACHED)
-		{
-			bOK = TRUE;
-			lpBuffer[dwFound] = ptEnd;
-			dwFound++;
-			break; // Finished
-		}
+    lpBuffer[0] = ptStart; // start point
+    DWORD dwFound = 1;
 
-		// Perform a redundancy check
-		int nRedundancy = GetRedundancy(lpBuffer, dwFound, pos);
-		if (nRedundancy == -1)
-		{
-			// no redundancy
-			lpBuffer[dwFound] = pos;
-			dwFound++;
-		}
-		else
-		{
-			// redundancy found, discard all redundant steps
-			dwFound = nRedundancy + 1;
-			lpBuffer[dwFound] = pos;
-		}	
+    POINT pos = ptStart;
 
-		nRes = GetBestMove(pos);
-	}	
+    BOOL bOK = FALSE;
+    int nRes = GetBestMove(pos);
+    while (nRes != PATH_FAIL && dwFound < dwMaxCount)
+    {
+        // Reached?
+        if (nRes == PATH_REACHED)
+        {
+            bOK = TRUE;
+            lpBuffer[dwFound] = ptEnd;
+            dwFound++;
+            break; // Finished
+        }
 
-	if (!bOK)
-		dwFound = 0;
+        // Perform a redundancy check
+        int nRedundancy = GetRedundancy(lpBuffer, dwFound, pos);
+        if (nRedundancy == -1)
+        {
+            // no redundancy
+            lpBuffer[dwFound] = pos;
+            dwFound++;
+        }
+        else
+        {
+            // redundancy found, discard all redundant steps
+            dwFound = nRedundancy + 1;
+            lpBuffer[dwFound] = pos;
+        }
 
-	return dwFound;
+        nRes = GetBestMove(pos);
+    }
+
+    if (!bOK)
+        dwFound = 0;
+
+    return dwFound;
 }
 
 void CTeleportPath::Block(POINT pos, int nRange)
 {
-	nRange = max(nRange, 1);
+    nRange = max(nRange, 1);
 
-	for (int i = pos.x - nRange; i < pos.x + nRange; i++)
-	{
-		for (int j = pos.y - nRange; j < pos.y + nRange; j++)
-		{
-			if (IsValidIndex(i, j))
-				m_ppTable[i][j] = RANGE_INVALID;
-		}
-	}
+    for (int i = pos.x - nRange; i < pos.x + nRange; i++)
+    {
+        for (int j = pos.y - nRange; j < pos.y + nRange; j++)
+        {
+            if (IsValidIndex(i, j))
+                m_ppTable[i][j] = RANGE_INVALID;
+        }
+    }
 }
 
 int CTeleportPath::GetRedundancy(const LPPOINT lpPath, DWORD dwMaxCount, const POINT &pos)
 {
-	// step redundancy check
-	if (lpPath == NULL || dwMaxCount == 0)
-		return -1;
+    // step redundancy check
+    if (lpPath == NULL || dwMaxCount == 0)
+        return -1;
 
-	for (DWORD i = 1; i < dwMaxCount; i++)
-	{
-		if (AutoTele::GetDistanceSquared(lpPath[i].x, lpPath[i].y, pos.x, pos.y) <= TP_RANGE / 2)
-			return i;
-	}
+    for (DWORD i = 1; i < dwMaxCount; i++)
+    {
+        if (AutoTele::GetDistanceSquared(lpPath[i].x, lpPath[i].y, pos.x, pos.y) <= TP_RANGE / 2)
+            return i;
+    }
 
-	return -1;
+    return -1;
 }
 
 BOOL CTeleportPath::IsValidIndex(int x, int y) const
 {
-	return x >= 0 && x < m_nCX && y >= 0 && y < m_nCY;
+    return x >= 0 && x < m_nCX && y >= 0 && y < m_nCY;
 }
 
 /*BOOL CTeleportPath::DumpDistanceTable(LPCSTR lpszFilePath) const
 {
-	if (lpszFilePath == NULL || m_ppTable == NULL)
-		return FALSE;
+    if (lpszFilePath == NULL || m_ppTable == NULL)
+        return FALSE;
 
-	FILE *fp = fopen(lpszFilePath, "w+");
-	if(fp == NULL )
-		return FALSE;
+    FILE *fp = fopen(lpszFilePath, "w+");
+    if(fp == NULL )
+        return FALSE;
 
-	for (int y = 0; y < m_nCY; y++)
-	{
-		for (int x = 0; x < m_nCX; x++)
-		{
-			if (m_ptStart.x == x && m_ptStart.y == y)
-			{
-				fprintf(fp, "%s ", "St");
-			}
-			else if (m_ptEnd.x == x && m_ptEnd.y == y)
-			{
-				fprintf(fp, "%s ", "En");
-			}
-			else
-			{
-				short iDis = m_ppTable[x][y];
+    for (int y = 0; y < m_nCY; y++)
+    {
+        for (int x = 0; x < m_nCX; x++)
+        {
+            if (m_ptStart.x == x && m_ptStart.y == y)
+            {
+                fprintf(fp, "%s ", "St");
+            }
+            else if (m_ptEnd.x == x && m_ptEnd.y == y)
+            {
+                fprintf(fp, "%s ", "En");
+            }
+            else
+            {
+                short iDis = m_ppTable[x][y];
 
-				if (iDis == RANGE_INVALID)
-					fprintf(fp, "%s ", "  ");
-				else if (iDis >= 255)
-					fprintf(fp, "%s ", "??");
-				else
-					fprintf(fp, "%02X ", iDis);		
-			}					
-		}
+                if (iDis == RANGE_INVALID)
+                    fprintf(fp, "%s ", "  ");
+                else if (iDis >= 255)
+                    fprintf(fp, "%s ", "??");
+                else
+                    fprintf(fp, "%02X ", iDis);
+            }
+        }
 
-		fprintf(fp, "%c", '\n');
-	}
+        fprintf(fp, "%c", '\n');
+    }
 
-	fclose(fp);
-	return TRUE;
+    fclose(fp);
+    return TRUE;
 }*/

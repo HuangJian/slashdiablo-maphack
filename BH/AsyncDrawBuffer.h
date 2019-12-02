@@ -10,40 +10,40 @@ typedef std::function<void(AsyncDrawBuffer&)> fpDirector;
 class AsyncDrawBuffer
 {
 private:
-	DrawBuffer* fg;
-	DrawBuffer* bg;
+    DrawBuffer* fg;
+    DrawBuffer* bg;
 public:
-	AsyncDrawBuffer();
-	~AsyncDrawBuffer();
+    AsyncDrawBuffer();
+    ~AsyncDrawBuffer();
 
-	// Calls all buffered draw calls in the fore buffer
-	void drawAll();
+    // Calls all buffered draw calls in the fore buffer
+    void drawAll();
 
-	// Pushes a draw function into the back buffer
-	void push(std::function<void()> drawCall);
-	void push_top_layer(std::function<void()> drawCall);
+    // Pushes a draw function into the back buffer
+    void push(std::function<void()> drawCall);
+    void push_top_layer(std::function<void()> drawCall);
 
-	// Clears the backbuffer
-	void clear();
+    // Clears the backbuffer
+    void clear();
 
-	// Switches the fore and back buffers to change the displayed frame
-	void swapBuffers();
+    // Switches the fore and back buffers to change the displayed frame
+    void swapBuffers();
 };
 
 class DrawDirective {
 private:
-	int frameCount;
-	bool updatePending;
-	AsyncDrawBuffer buffer;
-	bool forcedUpdate;
-	bool synchronous;
-	void drawInternal(fpDirector director);
+    int frameCount;
+    bool updatePending;
+    AsyncDrawBuffer buffer;
+    bool forcedUpdate;
+    bool synchronous;
+    void drawInternal(fpDirector director);
 public:
-	unsigned int maxGhost;
+    unsigned int maxGhost;
 
-	DrawDirective(bool synchronous, unsigned char _maxGhost);
-	~DrawDirective();
-	void draw(fpDirector director);
-	void forceUpdate();
+    DrawDirective(bool synchronous, unsigned char _maxGhost);
+    ~DrawDirective();
+    void draw(fpDirector director);
+    void forceUpdate();
 };
 

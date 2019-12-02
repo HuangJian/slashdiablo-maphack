@@ -81,9 +81,9 @@ std::string Trim(std::string source);
 void PrintText(DWORD Color, char *szText, ...);
 
 struct KeyCode {
-	std::string name;
-	unsigned int value;
-	std::string literalName;
+    std::string name;
+    unsigned int value;
+    std::string literalName;
 };
 
 KeyCode GetKeyCode(unsigned int nKey);

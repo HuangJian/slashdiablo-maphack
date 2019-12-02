@@ -52,33 +52,33 @@
 struct UnitAny;
 
 class Item : public Module {
-	private:
-		static map<std::string, Toggle> Toggles;
-		unsigned int showPlayer;
-		static UnitAny* viewingUnit;
-		Drawing::UITab* settingsTab;
-	public:
+    private:
+        static map<std::string, Toggle> Toggles;
+        unsigned int showPlayer;
+        static UnitAny* viewingUnit;
+        Drawing::UITab* settingsTab;
+    public:
 
-		Item() : Module("Item") {};
+        Item() : Module("Item") {};
 
-		void OnLoad();
-		void OnUnload();
+        void OnLoad();
+        void OnUnload();
 
-		void LoadConfig();
-		void DrawSettings();
+        void LoadConfig();
+        void DrawSettings();
 
-		void OnLoop();
-		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
-		void OnLeftClick(bool up, int x, int y, bool* block);
-		std::map<string, Toggle>* GetToggles() { return &Toggles; }
+        void OnLoop();
+        void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
+        void OnLeftClick(bool up, int x, int y, bool* block);
+        std::map<string, Toggle>* GetToggles() { return &Toggles; }
 
-		static void __fastcall ItemNamePatch(wchar_t *name, UnitAny *item);
-		static void OrigGetItemName(UnitAny *item, string &itemName, char *code);
-		static void __stdcall OnProperties(wchar_t *wTxt);
-		static BOOL __stdcall OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut);
-		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
+        static void __fastcall ItemNamePatch(wchar_t *name, UnitAny *item);
+        static void OrigGetItemName(UnitAny *item, string &itemName, char *code);
+        static void __stdcall OnProperties(wchar_t *wTxt);
+        static BOOL __stdcall OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut);
+        static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
-		static UnitAny* GetViewUnit();
+        static UnitAny* GetViewUnit();
 };
 
 void ItemName_Interception();

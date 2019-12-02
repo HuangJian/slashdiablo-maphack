@@ -11,39 +11,39 @@
 struct UnitAny;
 
 struct IdNamePair{
-	int id;
-	std::string name;
+    int id;
+    std::string name;
 };
 
 class StashExport : public Module {
 private:
 
-	string dfltExprt;
-	map<string, string> mustaches;
-	unsigned int exportGear;
-	unsigned int exportType;
-	static UnitAny* viewingUnit;
-	Drawing::UITab* settingsTab;
-	std::vector<std::string> options;
+    string dfltExprt;
+    map<string, string> mustaches;
+    unsigned int exportGear;
+    unsigned int exportType;
+    static UnitAny* viewingUnit;
+    Drawing::UITab* settingsTab;
+    std::vector<std::string> options;
 
-	static void fillStats(JSONArray* statsArray, JSONObject *itemDef, UnitAny *pItem, std::string codeKey, std::string paramKey, std::string minKey, std::string maxKey, int maxProps);
+    static void fillStats(JSONArray* statsArray, JSONObject *itemDef, UnitAny *pItem, std::string codeKey, std::string paramKey, std::string minKey, std::string maxKey, int maxProps);
 public:
-	static map<std::string, Toggle> Toggles;
-	static map<std::string, std::unique_ptr<Mustache::AMustacheTemplate>> MustacheTemplates;
+    static map<std::string, Toggle> Toggles;
+    static map<std::string, std::unique_ptr<Mustache::AMustacheTemplate>> MustacheTemplates;
 
-	StashExport() : Module("StashExport"), exportType(0) { dfltExprt = "json"; };
+    StashExport() : Module("StashExport"), exportType(0) { dfltExprt = "json"; };
 
-	void OnLoad();
-	void OnUnload();
+    void OnLoad();
+    void OnUnload();
 
-	void LoadConfig();
+    void LoadConfig();
 
-	void OnLoop();
-	void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
-	void WriteStash();
-	std::map<string, Toggle>* GetToggles() { return &Toggles; }
-	static void GetItemInfo(UnitAny* pItem, JSONObject* pBuffer);
-	static JSONObject* getStatEntry(WORD statId, WORD statId2, DWORD statVal, DWORD min, DWORD max);
+    void OnLoop();
+    void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
+    void WriteStash();
+    std::map<string, Toggle>* GetToggles() { return &Toggles; }
+    static void GetItemInfo(UnitAny* pItem, JSONObject* pBuffer);
+    static JSONObject* getStatEntry(WORD statId, WORD statId2, DWORD statVal, DWORD min, DWORD max);
 };
 
 void ItemDesc_Interception();

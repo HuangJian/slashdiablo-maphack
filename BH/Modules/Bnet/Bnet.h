@@ -5,38 +5,38 @@
 struct Control;
 
 class Bnet : public Module {
-	private:
-		std::map<string, bool> bools;
-		bool* showLastGame;
-		bool* showLastPass;
-		bool* nextInstead;
-		bool* keepDesc;
-		static unsigned int failToJoin;
-		static std::string lastName;
-		static std::string lastPass;
-		static std::string lastDesc;
-		static std::regex reg;
+    private:
+        std::map<string, bool> bools;
+        bool* showLastGame;
+        bool* showLastPass;
+        bool* nextInstead;
+        bool* keepDesc;
+        static unsigned int failToJoin;
+        static std::string lastName;
+        static std::string lastPass;
+        static std::string lastDesc;
+        static std::regex reg;
 
-	public:
+    public:
 
-		Bnet() : Module("Bnet") {};
+        Bnet() : Module("Bnet") {};
 
-		void OnLoad();
-		void OnUnload();
-		void LoadConfig();
+        void OnLoad();
+        void OnUnload();
+        void LoadConfig();
 
-		void OnGameJoin();
-		void OnGameExit();
+        void OnGameJoin();
+        void OnGameExit();
 
-		void InstallPatches();
-		void RemovePatches();
+        void InstallPatches();
+        void RemovePatches();
 
-		std::map<string, bool>* GetBools() { return &bools; }
+        std::map<string, bool>* GetBools() { return &bools; }
 
-		static VOID __fastcall NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD));
-		static VOID __fastcall NextPassPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD));
-		static VOID __fastcall GameDescPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD));
-		static void RemovePassPatch();
+        static VOID __fastcall NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD));
+        static VOID __fastcall NextPassPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD));
+        static VOID __fastcall GameDescPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD));
+        static void RemovePassPatch();
 };
 
 void FailToJoin_Interception();
