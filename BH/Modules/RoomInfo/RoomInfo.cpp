@@ -1,106 +1,101 @@
 #include "RoomInfo.h"
 #include "../../BH.h"
 #include "../../D2Ptrs.h"
-#include "../../D2Stubs.h"
 #include "../../MPQReader.h"
-#include <chrono>  // chrono::system_clock
-#include <ctime>   // localtime
+#include <ctime>   // localtime_s
 #include <iomanip> // put_time
 
 using namespace Drawing;
 
-map<std::string, Toggle> RoomInfo::Toggles;
-map<int, string> RoomInfo::mapAreaLevels;
-DWORD RoomInfo::gameTimer;
-string RoomInfo::txtDifficulty;
-
-vector<tuple<string, bool, function<string()>>> RoomInfo::toggleList;
-
 void RoomInfo::OnLoad() {
-    RoomInfo::toggleList = {
-        make_tuple("Layer Level No Toggle", true, []() {
-            UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
-            auto levelNo = pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
-//            return wstring_to_string(D2CLIENT_GetLevelName(levelNo));
-            return "";
-        }),
-        make_tuple("Layer Level No Toggle", true, []() {
-            return RoomInfo::txtDifficulty;
-        }),
-        make_tuple("Area Level Toggle", true, []() {
-            UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
-            auto levelNo = pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
-            int iLevelNo = levelNo & 0xffff; // map it to 1~65536
-            auto it = RoomInfo::mapAreaLevels.find(iLevelNo);
-            auto areaLevel = (it == mapAreaLevels.end()) ? "Unknown" : it->second;
-            return "Area level: " + areaLevel;
-        }),
-        make_tuple("Server Ip Toggle", true, []() {
-            return (*p_D2LAUNCH_BnData)->szGameIP;
-        }),
-        make_tuple("Clock Toggle", true, []() {
-            auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
-            return to_string(put_time(localtime(&now), "%X"));
-        }),
-        make_tuple("Game Time Toggle", true, []() {
-            auto now = GetTickCount();
-            int elapsedSeconds = (GetTickCount() - RoomInfo::gameTimer) / 1000;
-            return string_format("%.2d:%.2d:%.2d", elapsedSeconds / 3600, (elapsedSeconds / 60) % 60, elapsedSeconds % 60);
-        }),
-    };
-    for (auto const& item : toggleList) {
-        string key = get<0>(item);
-        BH::config->ReadToggle(key, "None", get<1>(item), Toggles[key]);
+    Toggle layerLevelToggle{};
+    features.assign({
+        {"Layer Level No Toggle", layerLevelToggle, true, [this]() {
+            auto levelNo = D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+            return D2CLIENT_GetLevelName(levelNo);
+        }},
+        {"Layer Level No Toggle", layerLevelToggle, true, [this]() {
+            return txtDifficulty;
+        }},
+        {"Area Level Toggle", Toggle(), true, [this]() {
+            auto levelNo = D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+            std::lock_guard<std::mutex> lock(this->mutexMap);
+            auto levels = mapAreaLevels.find(static_cast<unsigned int>(levelNo));
+            int difficulty = static_cast<int>(D2CLIENT_GetDifficulty()); // 0 -> Normal, 1 -> Nightmare, 2 -> Hell
+            bool isExpansion = (*p_D2CLIENT_ExpCharFlag) > 0;
+            if (isExpansion) {
+                difficulty += 3;
+            }
+            auto areaLevel = (levels == mapAreaLevels.end()) ? L"Unknown" : to_wstring(levels->second[difficulty]);
+            return L"Area level: " + areaLevel;
+        }},
+        {"Server Ip Toggle", Toggle(), true, []() {
+            return string_to_wstring((*p_D2LAUNCH_BnData)->szGameIP);
+        }},
+        {"Clock Toggle", Toggle(), true, []() {
+            time_t now = time(nullptr);
+            struct tm timeInfo{};
+            localtime_s(&timeInfo, &now);
+            return to_wstring(put_time(&timeInfo, L"%X"));
+        }},
+        {"Game Time Toggle", Toggle(), true, [this]() {
+            auto seconds = (GetTickCount() - gameTimer) / 1000;
+            return wstring_format(L"%.2ld:%.2ld:%.2ld", seconds / 3600, (seconds / 60) % 60, seconds % 60);
+        }},
+    });
+    RoomInfo::LoadConfig();
+}
+
+void RoomInfo::LoadConfig() {
+    // it could be invoked in initializing module and reloading config.
+    for (auto& item : features) {
+        BH::config->ReadToggle(item.key, "None", item.defaultVal, item.toggle);
     }
 }
 
-void RoomInfo::extractAreaLevels(int difficulty) {
-    RoomInfo::mapAreaLevels.clear();
-
+void RoomInfo::MpqLoaded() {
     auto txt = MpqDataMap.find("levels");
     if (txt == MpqDataMap.end()) {
-        BH::logger << "RoomInfo::extractAreaLevels: Failed to find levels.txt from mpq data." << endl;
+        BH::logger << "RoomInfo::MpqLoaded: Failed to find levels.txt from mpq data." << endl;
         return;
     }
-    bool isExpansion = (*p_D2CLIENT_ExpCharFlag) > 0;
+
+    std::lock_guard<std::mutex> lock(this->mutexMap);
+    vector<string> keys = {"MonLvl1", "MonLvl2", "MonLvl3", "MonLvl1Ex", "MonLvl2Ex", "MonLvl3Ex"};
     for (const auto& level : txt->second->data) {
         auto id = level.find("Id");
-        if (id != level.end() && !id->second.empty()) {
-            string key = string_format("MonLvl%d", difficulty + 1);
-            if (isExpansion) {
-                key += "Ex";
-            }
-            auto monsterLevel = level.find(key);
-            if (monsterLevel != level.end()) {
-                auto val = monsterLevel->second;
-                if (val.empty()) {
-                    val = "0";
-                }
-                RoomInfo::mapAreaLevels.insert(make_pair(std::stoi(id->second), val));
+        if (id == level.end() || id->second.empty()) {
+            continue;
+        }
+
+        int size = keys.size();
+        vector<int> levels(size, 0);
+        for (int i = 0; i < size; ++i) {
+            auto monsterLevel = level.find(keys[i]);
+            if (monsterLevel != level.end() && !monsterLevel->second.empty()) {
+                levels[i] = std::stoi(monsterLevel->second);
             }
         }
+        mapAreaLevels.insert(make_pair(std::stoi(id->second), levels));
     }
 }
 
 void RoomInfo::OnGameJoin() {
     gameTimer = GetTickCount();
 
-    int difficulty = D2CLIENT_GetDifficulty() & 0b11; // 0 -> Normal, 1 -> Nightmare, 2 -> Hell
-    string difficulties[3] = { "Normal", "Nightmare", "Hell" };
-    txtDifficulty = "Difficulty: " + difficulties[difficulty];
-
-    extractAreaLevels(difficulty);
+    int difficulty = static_cast<int>(D2CLIENT_GetDifficulty()); // 0 -> Normal, 1 -> Nightmare, 2 -> Hell
+    wstring difficulties[3] = { L"Normal", L"Nightmare", L"Hell" };
+    txtDifficulty = L"Difficulty: " + difficulties[difficulty];
 }
 
 void RoomInfo::OnDraw() {
     int yOffset = 6;
 
-    for (auto const& item : toggleList) {
-        string key = get<0>(item);
-        if (Toggles[key].state) {
-            auto text = get<2>(item)();
+    for (auto const& feature : features) {
+        if (feature.toggle.state) {
+            wstring text = feature.evalFunc();
             if (!text.empty()) {
-                Texthook::Draw(*p_D2CLIENT_ScreenSizeX - 16, yOffset, Right, 0, Gold, text);
+                Texthook::Draw(*p_D2CLIENT_ScreenSizeX - 8, yOffset, Right, 0, Gold, text.c_str());
                 yOffset += 16;
             }
         }

@@ -2,25 +2,33 @@
 
 #include "../../Config.h"
 #include "../Module.h"
-#include <tuple>
 #include <functional>
+#include <mutex>
+
+struct RoomInfoFeature {
+    string key;
+    Toggle toggle;
+    bool defaultVal;
+    function<wstring()> evalFunc;
+};
 
 class RoomInfo : public Module {
-    private:
-        // have to declare them as "static" as they are initialized in "OnGameJoin" 
-        // but accessed in "OnAutomapDraw" (different threads???)
-        static vector<tuple<string, bool, function<string()>>> toggleList;
-        static map<string, Toggle> Toggles;
-        static map<int, string> mapAreaLevels;
-        static DWORD gameTimer;
-        static string txtDifficulty;
+private:
+    // use a mutex here to ensure thread safe map accessing.
+    mutex mutexMap;
+    map<int, vector<int>> mapAreaLevels;
 
-        void extractAreaLevels(int difficulty);
+    vector<RoomInfoFeature> features;
+    DWORD gameTimer;
+    wstring txtDifficulty;
+public:
+    RoomInfo() : Module("Room Info") {};
 
-    public:
-        RoomInfo() : Module("Room Info") {};
+    void OnLoad();
 
-        void OnLoad();
-        void OnGameJoin();
-        void OnDraw();
+    void LoadConfig();
+    void MpqLoaded();
+
+    void OnGameJoin();
+    void OnDraw();
 };

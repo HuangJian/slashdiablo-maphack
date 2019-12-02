@@ -69,6 +69,9 @@ bool from_string(T& t,
 template< class type> std::string to_string( const type & value)
 { std::stringstream ss; ss << value; return ss.str(); }
 
+template< class type> std::wstring to_wstring( const type & value)
+{ std::wstringstream ss; ss << value; return ss.str(); }
+
 bool IsTrue(const char *str);
 bool StringToBool(std::string str);
 int StringToNumber(std::string str);
@@ -88,7 +91,7 @@ KeyCode GetKeyCode(const char* name);
 ULONGLONG BHGetTickCount(void);
 
 std::string string_format(const std::string fmt_str, ...);
-
+std::wstring wstring_format(const std::wstring fmt_str, ...);
 
 VOID *memcpy2(void *dest, const void *src, size_t count);
 HANDLE OpenFileRead(char *filename);

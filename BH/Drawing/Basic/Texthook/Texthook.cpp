@@ -232,7 +232,7 @@ bool Texthook::Draw(unsigned int x, unsigned int y, int align, unsigned int font
 	return true;
 }
 
-bool Texthook::Draw(unsigned int x, unsigned int y, int align, unsigned int font, TextColor color, wchar_t* text, ...) {
+bool Texthook::Draw(unsigned int x, unsigned int y, int align, unsigned int font, TextColor color, const wchar_t* text, ...) {
 	//Convert all %s's into proper values.
 	wchar_t* buffer = new wchar_t[4096];
 	va_list arg;
